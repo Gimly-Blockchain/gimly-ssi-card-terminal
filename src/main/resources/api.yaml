@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  license:
+    name: Apache License Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: Gimly
+    url: https://gimly.id
+    email: caspar@gimly.io
+  description: Tangem Desktop SSI SDK
+  title: Tangem Desktop SSI SDK
+  version: "0.1"
+tags:
+  - name: Wallet
+    description: Wallet
+  - name: DID
+    description: DID
+servers:
+  - url: http://localhost:8080/tangem-ssi/1.0
+components:
+  securitySchemes:
+    oauth2schema:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://gw.api.cloud.sphereon.com/token
+          scopes:
+            global: accessEverything
+  parameters:
+    CardIdPathParam:
+      in: path
+      name: cardId
+      description: The Id of a card
+      required: true
+      schema:
+        type: string
+  requestBodies:
+    EntryRequestBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WalletRequest"
+          example:
+            tags: ["Tag Example", "My Data"]
+            blockchain:
+              metadata: [Example, World]
+              data: Hello World
+    WalletResponseCallback:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WalletResults"
+
+  responses:
+    NotFoundResponse:
+      description: Entry or chain does not exists
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ErrorResponse:
+      description: An error occured
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    WalletResponse:
+      description: The entry result from the query
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/WalletResults"
+  schemas:
+    WalletRequest:
+      description: This is the Entry Request to create an entry or chain (first entry).
+        The chain Id is calculated from the firt Entry where the content part of
+        the entry is omited during Chain ID calculation. After the chain is
+        stored you can traverse the cahin using the API (not this object)
+      type: object
+      required:
+        - blockchain
+      properties:
+        tags:
+          $ref: "#/components/schemas/Tags"
+        blockchain:
+          $ref: "#/components/schemas/BlockchainEntry"
+    WalletResults:
+      description: This is the Wallet Result
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          description: Wallet Id
+          readOnly: true
+          type: string
+        wallets:
+          type: array
+          items:
+            $ref: "#/components/schemas/WalletInfo"
+    WalletInfo:
+      description: Singular Wallet Information
+      type: object
+      properties:
+        publicKeyMultibase:
+          description: The public key of the wallet in Multibase Format
+          type: string
+        index:
+          description: The index of the wallet
+          type: integer
+    CardInfoResult:
+      description: This is the card information
+      type: object
+      readOnly: true
+      required:
+        - cardId
+        - batchId
+        - cardPublicKey
+        - cardInfo
+      properties:
+        cardId:
+          description: The card id Id
+          type: string
+        batchId:
+          description: The manufacturing batch id
+          type: string
+        cardPublicKeyMultibase:
+          description: The card public key
+          type: string
+        cardInfo:
+          $ref: "#/components/schemas/CardInfo"
+        linkedTerminal:
+          $ref: "#/components/schemas/LinkedTerminal"
+      example:
+        cardId: CB80000000012201
+        batchId: CB80
+        cardPublicKeyMultibase: z0400D05BCAC34B58AA48BF998FB68667A3112262275200431EA235EC4616A15287B5D21F15E45740AB6B829F415950DBC7A68493DCF5FD270C8CAAB0E975E9A0D9
+        linkedTerminal: currentTerminal
+
+    LinkedTerminal:
+      description: The linked terminal
+      type: string
+      enum:
+        - notLinked
+        - currentTerminal
+        - anotherTerminal
+    CardInfo:
+      description: Card info
+      type: object
+      properties:
+        curves:
+          type: array
+          items:
+            $ref: "#/components/schemas/Curve"
+        firmwareVersion:
+          $ref: "#/components/schemas/FirmwareVersion"
+    FirmwareVersion:
+      type: object
+      properties:
+        major:
+          type: integer
+        minor:
+          type: integer
+        patch:
+          type: integer
+        type:
+          type: string
+      example:
+        major: 4
+        minor: 12
+        patch: 3
+        type: "r"
+    Curve:
+      type: string
+      enum:
+        - secp256k1
+        - secp256r1
+        - ed25519
+paths:
+  "/":
+    get:
+      summary: Scan the card
+      security:
+        - oauth2schema:
+            - global
+      description: Scan the Card
+      operationId: scanCard
+      responses:
+        "200":
+          description: Card information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CardInfoResult"
+  "/wallets":
+    post:
+      summary: Create a new wallet
+      security:
+        - oauth2schema:
+            - global
+      description: Create a new wallet.
+      operationId: createWallet
+      responses:
+        "200":
+          description: Wallet already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletResults"
+        "202":
+          description: Wallet creation initiatied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletResults"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      parameters:
+        - $ref: '#/components/parameters/CardIdPathParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WalletRequest"
+        description: Create a new wallet
+        required: true
+      tags:
+        - Wallet
