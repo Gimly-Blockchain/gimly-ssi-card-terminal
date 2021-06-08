@@ -35,7 +35,7 @@ components:
       schema:
         type: string
   requestBodies:
-    EntryRequestBody:
+    WalletRequestBody:
       content:
         application/json:
           schema:
@@ -53,7 +53,7 @@ components:
 
   responses:
     NotFoundResponse:
-      description: Entry or chain does not exists
+      description: Wallet does not exists
       content:
         application/json:
           schema:
@@ -66,25 +66,15 @@ components:
             $ref: "#/components/schemas/ErrorResponse"
 
     WalletResponse:
-      description: The entry result from the query
+      description: The Wallet response
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/WalletResults"
   schemas:
     WalletRequest:
-      description: This is the Entry Request to create an entry or chain (first entry).
-        The chain Id is calculated from the firt Entry where the content part of
-        the entry is omited during Chain ID calculation. After the chain is
-        stored you can traverse the cahin using the API (not this object)
+      description: This is the Wallet Request
       type: object
-      required:
-        - blockchain
-      properties:
-        tags:
-          $ref: "#/components/schemas/Tags"
-        blockchain:
-          $ref: "#/components/schemas/BlockchainEntry"
     WalletResults:
       description: This is the Wallet Result
       type: object
@@ -177,6 +167,13 @@ components:
         - secp256k1
         - secp256r1
         - ed25519
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        id:
+          type: integer
 paths:
   "/":
     get:
