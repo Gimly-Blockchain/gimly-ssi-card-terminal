@@ -7,16 +7,16 @@ info:
     name: Gimly
     url: https://gimly.id
     email: caspar@gimly.io
-  description: Tangem Desktop SSI SDK
-  title: Tangem Desktop SSI SDK
+  description: Gimly SSI Card Terminal SDK is a Self Sovereign Identity SDK that can be used on terminals and desktops equiped with an NFC reader
+  title: Gimly SSI Card Terminal
   version: "0.1"
 tags:
-  - name: Wallet
-    description: Wallet
+  - name: Card
+    description: Card and Wallet
   - name: DID
     description: DID
 servers:
-  - url: http://localhost:8080/tangem-ssi/1.0
+  - url: http://localhost:8080/gimly-ssi-card-terminal/0.1
 components:
   securitySchemes:
     oauth2schema:
@@ -34,6 +34,14 @@ components:
       required: true
       schema:
         type: string
+    WalletIdPathParam:
+      in: path
+      name: walletId
+      description: The Wallet index or public key
+      required: true
+      schema:
+        type: string
+
   requestBodies:
     WalletRequestBody:
       content:
@@ -41,9 +49,9 @@ components:
           schema:
             $ref: "#/components/schemas/WalletRequest"
           example:
-            tags: ["Tag Example", "My Data"]
+            tags: [ "Tag Example", "My Data" ]
             blockchain:
-              metadata: [Example, World]
+              metadata: [ Example, World ]
               data: Hello World
     WalletResponseCallback:
       content:
@@ -105,9 +113,7 @@ components:
       readOnly: true
       required:
         - cardId
-        - batchId
         - cardPublicKey
-        - cardInfo
       properties:
         cardId:
           description: The card id Id
@@ -181,6 +187,8 @@ paths:
       security:
         - oauth2schema:
             - global
+      tags:
+        - Card
       description: Scan the Card
       operationId: scanCard
       responses:
@@ -191,11 +199,35 @@ paths:
               schema:
                 $ref: "#/components/schemas/CardInfoResult"
   "/wallets":
+    get:
+      summary: Get all wallets
+      security:
+        - oauth2schema:
+            - global
+      tags:
+        - Card
+      description: Get existing wallets
+      operationId: getWallets
+      responses:
+        "200":
+          description: The wallets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletResults"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
     post:
       summary: Create a new wallet
       security:
         - oauth2schema:
             - global
+      tags:
+        - Card
       description: Create a new wallet.
       operationId: createWallet
       responses:
@@ -226,5 +258,28 @@ paths:
               $ref: "#/components/schemas/WalletRequest"
         description: Create a new wallet
         required: true
+  "/wallets/{walletId}":
+    get:
+      summary: Get a wallet by Index or public key
+      security:
+        - oauth2schema:
+            - global
       tags:
-        - Wallet
+        - Card
+      description: Get a wallet by index or publickey
+      operationId: getWalletByIndex
+      parameters:
+        - $ref: "#/components/parameters/WalletIdPathParam"
+      responses:
+        "200":
+          description: The wallet info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletInfo"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"

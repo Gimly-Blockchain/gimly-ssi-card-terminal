@@ -1,9 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
-
-
-
 val javaVersion = JavaVersion.VERSION_13
 val genSourceDir = file("$buildDir/kotlin-models/src/main/kotlin")
 

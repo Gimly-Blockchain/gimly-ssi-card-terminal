@@ -1,12 +1,9 @@
-package io.gimly.tangem.ssicardapi
+package io.gimly.card.api
 
 import com.tangem.TangemSdk
 import com.tangem.jvm.init
-import io.gimly.generated.card.model.WalletResults
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
 
 @SpringBootApplication
 class SsiCardApiApplication
@@ -18,11 +15,3 @@ fun main(args: Array<String>) {
 }
 
 
-@RestController
-class CardController {
-    @GetMapping
-    fun listWallets(): WalletResults {
-
-        return WalletResults(id = "")
-    }
-}
