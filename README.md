@@ -7,6 +7,9 @@ Gimly SSI Card Terminal is a REST API for Self Sovereign Identity interactions b
 
 The API is used as an easy integration means for Desktop, Terminal and Server environments equipped with a NFC reader. The API is targeted at Self Sovereign Identity and Authentication use cases, meaning it can be used to create asymmetric keys for Decentralized Identifiers, as well as store and present Verifiable Credentials and Verifiable Presentations. Given the private key is securely stored in the NFC cards protected environment, it means the solution provides security for SSI use cases on desktop and terminal environments which typically would not be possible otherwise.
 
+# API Documentation
+The [API documentation](./docs/api/README.md) itself can be found [here](./docs/api/README.md)
+
 # Scanning a card
 To start working with the NFC card, you typically have to scan the card first
 

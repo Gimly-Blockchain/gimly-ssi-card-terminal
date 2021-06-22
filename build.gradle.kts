@@ -100,3 +100,17 @@ val generateKotlinModels by tasks.register("generateKotlinModels", GenerateTask:
     outputs.dir("$buildDir/kotlin-models")
 }
 
+val generateMarkdown by tasks.register("generateMarkdown", GenerateTask::class) {
+    generatorName.set("markdown")
+
+    // Set output directory, specification and configuration.
+    outputDir.set("${rootDir}/docs/api")
+    inputSpec.set("${rootDir}/src/main/resources/api.yaml")
+    apiPackage.set("io.gimly.generated.card.api")
+    invokerPackage.set("io.gimly.generated.card.invoker")
+    modelPackage.set("io.gimly.generated.card.model")
+
+    // Mark the output directory for this task to prevent gradle from marking it as stale
+    outputs.dir("$rootDir/docs/api")
+}
+
