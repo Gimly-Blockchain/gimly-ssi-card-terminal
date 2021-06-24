@@ -2,29 +2,36 @@ package io.gimly.card.api.controllers
 
 import io.gimly.card.api.services.CardService
 import io.gimly.generated.card.model.CardInfoResult
-import io.gimly.generated.card.model.WalletInfo
-import io.gimly.generated.card.model.WalletResults
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import io.gimly.generated.card.model.CreateKeyRequest
+import io.gimly.generated.card.model.KeyInfo
+import io.gimly.generated.card.model.KeyResults
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class CardController(val cardService: CardService) {
-
 
     @GetMapping("/")
     suspend fun scanCard(): CardInfoResult {
         return cardService.scanCard()
     }
 
-    @GetMapping("/wallets")
-    suspend fun listWallets(@RequestParam cardId: String?): WalletResults {
-        return cardService.listWallets(cardId)
+    @GetMapping("/keys")
+    suspend fun listKeys(@RequestParam cardId: String?): KeyResults {
+        return cardService.listKeys(cardId)
     }
 
-    @GetMapping("/wallets/{walletId}")
-    suspend fun getWalletById(@RequestParam cardId: String?, @PathVariable walletId: String): WalletInfo {
-        return cardService.getWalletById(cardId, walletId) ?: throw Exception("Could not retrieve wallet with id $walletId for card $cardId")
+    @PostMapping("/keys")
+    suspend fun createKey(@RequestParam cardId: String?, @RequestBody createKeyRequest: CreateKeyRequest): KeyInfo {
+        return cardService.createKey(cardId, createKeyRequest) ?: throw Exception("Could not create key for card $cardId")
+    }
+
+    @GetMapping("/keys/{keyId}")
+    suspend fun getKeyById(@RequestParam cardId: String?, @PathVariable keyId: String): KeyInfo {
+        return cardService.getKeyById(cardId, keyId) ?: throw Exception("Could not retrieve key with id $keyId for card $cardId")
+    }
+
+    @DeleteMapping("/keys/{keyId}")
+    suspend fun deleteKeyById(@RequestParam cardId: String?, @PathVariable keyId: String): KeyInfo {
+        return cardService.deleteKeyById(cardId, keyId) ?: throw Exception("Could not delete key with id $keyId for card $cardId")
     }
 }

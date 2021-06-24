@@ -13,8 +13,8 @@ info:
 tags:
   - name: Card
     description: Card and Wallet
-  - name: DID
-    description: DID
+  - name: Key
+    description: Keys and Signatures
 servers:
   - url: http://localhost:8080/gimly-ssi-card-terminal/0.1
 components:
@@ -34,34 +34,34 @@ components:
       required: false
       schema:
         type: string
-    WalletIdPathParam:
+    KeyIdPathParam:
       in: path
-      name: walletId
-      description: The Wallet index or public key
+      name: keyId
+      description: The Key index, public key or DID/Verification method key id
       required: true
       schema:
         type: string
 
   requestBodies:
-    WalletRequestBody:
+    KeyRequestBody:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/WalletRequest"
+            $ref: "#/components/schemas/CreateKeyRequest"
           example:
             tags: [ "Tag Example", "My Data" ]
             blockchain:
               metadata: [ Example, World ]
               data: Hello World
-    WalletResponseCallback:
+    KeyResponseCallback:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/WalletResults"
+            $ref: "#/components/schemas/KeyResults"
 
   responses:
     NotFoundResponse:
-      description: Wallet does not exists
+      description: Key does not exists
       content:
         application/json:
           schema:
@@ -78,35 +78,53 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/WalletResults"
+            $ref: "#/components/schemas/KeyResults"
   schemas:
-    WalletRequest:
-      description: This is the Wallet Request
+    CreateKeyRequest:
+      description: This is the create Key Request, which create a keypair on the NFC card
       type: object
-    WalletResults:
-      description: This is the Wallet Result
+      properties:
+        curve:
+          $ref: "#/components/schemas/Curve"
+        unrevokeable:
+          description: Whether this key can be unrevoked and thus reissued after revocation
+          type: boolean
+          default: false
+
+
+    KeyResults:
+      description: These are the Key Result
       type: object
       required:
         - id
       properties:
         id:
-          description: Wallet Id
+          description: Key Id
           readOnly: true
           type: string
-        wallets:
+        keys:
           type: array
           items:
-            $ref: "#/components/schemas/WalletInfo"
-    WalletInfo:
-      description: Singular Wallet Information
+            $ref: "#/components/schemas/KeyInfo"
+    KeyInfo:
+      description: Singular Key Information
       type: object
       properties:
         publicKeyMultibase:
-          description: The public key of the wallet in Multibase Format
+          description: The public key in Multibase Format
           type: string
         index:
-          description: The index of the wallet
+          description: The index of the key on the card
           type: integer
+        status:
+          $ref: "#/components/schemas/KeyStatus"
+    KeyStatus:
+      description: The status of the key on the card
+      type: string
+      enum:
+        - unAvailable
+        - active
+        - inActive
     CardInfoResult:
       description: This is the card information
       type: object
@@ -167,6 +185,11 @@ components:
         minor: 12
         patch: 3
         type: "r"
+    SignMode:
+      type: string
+      enum:
+        - hash
+        - raw
     Curve:
       type: string
       enum:
@@ -198,25 +221,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CardInfoResult"
-  "/wallets":
+  "/keys":
     parameters:
       - $ref: "#/components/parameters/CardIdQueryParam"
     get:
-      summary: Get all wallets
+      summary: Get all keys
       security:
         - oauth2schema:
             - global
       tags:
-        - Card
-      description: Get existing wallets
-      operationId: getWallets
+        - Key
+      description: Get existing keys
+      operationId: getKeys
       responses:
         "200":
-          description: The wallets
+          description: The keys
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WalletResults"
+                $ref: "#/components/schemas/KeyResults"
         "400":
           description: Invalid
           content:
@@ -224,27 +247,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
     post:
-      summary: Create a new wallet
+      summary: Create a new key
       security:
         - oauth2schema:
             - global
       tags:
-        - Card
-      description: Create a new wallet.
-      operationId: createWallet
+        - Key
+      description: Create a new key.
+      operationId: createKey
       responses:
         "200":
-          description: Wallet already exists
+          description: Key created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WalletResults"
-        "202":
-          description: Wallet creation initiatied
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/WalletResults"
+                $ref: "#/components/schemas/KeyResults"
         "400":
           description: Invalid
           content:
@@ -257,30 +274,77 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/WalletRequest"
-        description: Create a new wallet
+              $ref: "#/components/schemas/CreateKeyRequest"
+        description: Create a new key
         required: true
-  "/wallets/{walletId}":
+  "/keys/{keyId}":
     parameters:
       - $ref: "#/components/parameters/CardIdQueryParam"
+      - $ref: "#/components/parameters/KeyIdPathParam"
     get:
-      summary: Get a wallet by Index or public key
+      summary: Get a key by card Index, public key or DID key
       security:
         - oauth2schema:
             - global
       tags:
-        - Card
-      description: Get a wallet by index or publickey
-      operationId: getWalletByIndex
-      parameters:
-        - $ref: "#/components/parameters/WalletIdPathParam"
+        - Key
+      description: Get a key by card index, publickey or DID key
+      operationId: getKeyById
       responses:
         "200":
-          description: The wallet info
+          description: The Key info
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/WalletInfo"
+                $ref: "#/components/schemas/KeyInfo"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Deactivate a key by card Index, public key or DID key
+      security:
+        - oauth2schema:
+            - global
+      tags:
+        - Key
+      description: Deactivate a key by card index, publickey or DID key
+      operationId: deactiveKeyById
+      responses:
+        "200":
+          description: The Key info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeyInfo"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/keys/{keyId}/signatures":
+    parameters:
+      - $ref: "#/components/parameters/KeyIdPathParam"
+      - $ref: "#/components/parameters/CardIdQueryParam"
+    put:
+      summary: Sign one or more inputs
+      security:
+        - oauth2schema:
+            - global
+      tags:
+        - Key
+      description: Sign one or more inputs using the provided key
+      operationId: SignUsingKey
+      responses:
+        "200":
+          description: The signed info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeyInfo"
         "400":
           description: Invalid
           content:

@@ -1,11 +1,14 @@
-.openapi-generator-ignore
 README.md
 io/gimly/generated/card/api/CardApi.md
+io/gimly/generated/card/api/KeyApi.md
 io/gimly/generated/card/model/CardInfo.md
 io/gimly/generated/card/model/CardInfoResult.md
+io/gimly/generated/card/model/CreateKeyRequest.md
 io/gimly/generated/card/model/Curve.md
 io/gimly/generated/card/model/ErrorResponse.md
 io/gimly/generated/card/model/FirmwareVersion.md
+io/gimly/generated/card/model/KeyInfo.md
+io/gimly/generated/card/model/KeyResults.md
+io/gimly/generated/card/model/KeyStatus.md
 io/gimly/generated/card/model/LinkedTerminal.md
-io/gimly/generated/card/model/WalletInfo.md
-io/gimly/generated/card/model/WalletResults.md
+io/gimly/generated/card/model/SignMode.md

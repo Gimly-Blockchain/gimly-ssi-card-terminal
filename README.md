@@ -15,6 +15,21 @@ To start working with the NFC card, you typically have to scan the card first
 
 Simply doing a `GET` call to the root `/` will return basic NFC card information once you tapped the NFC card to the reader.
 
+### HTTP request headers
+- **Accept**: application/json
+
+<a name="scanCard"></a>
+### **scanCard**
+> CardInfoResult scanCard()
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**CardInfoResult**](./docs/api/io.gimly.generated.card.model/CardInfoResult.md)
+
+
 # TODO
 - Auth support on the endpoints itself
 - Integration with GraalVM for native executables
