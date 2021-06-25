@@ -8,6 +8,7 @@ import com.tangem.commands.common.card.EllipticCurve
 import com.tangem.commands.common.card.masks.SigningMethod
 import com.tangem.commands.wallet.*
 import com.tangem.common.CompletionResult
+import com.tangem.common.extensions.toHexString
 import com.tangem.jvm.init
 import io.gimly.generated.card.model.*
 import org.springframework.stereotype.Service
@@ -54,6 +55,33 @@ class CardService {
         ).toKeyInfo()
     }
 
+    suspend fun sign(cardId: String?, keyId: String, signRequest: SignRequest): SignResponse? {
+        val signResult = signCoroutine(cardId, keyId, signRequest.inputs.stream().map { it.data.toByteArray() }.toList())
+        var index = 0
+        val signatures = signRequest.inputs.map { signInput ->
+            SignOutputFromInput(signInput, SignOutput(signResult.get(index++).toHexString(), encoding = OutputEncoding.hex))
+        }
+        return SignResponse(signatures = signatures)
+    }
+
+
+    private suspend fun signCoroutine(cardId: String? = null, keyId: String, inputs: List<ByteArray>): List<ByteArray> {
+        return suspendCoroutine { continuation ->
+            val message = Message("Gimly ID Card needed", "Please tap your Gimly ID Card to the reader to sign")
+            // FIXME: 02/07/2021 We need to retrieve the public key at all times first here. So add DID kid and index support!
+            val key = if (keyId.startsWith("z")) {
+                keyId.drop(1)
+            } else {
+                keyId
+            }
+            sdk.sign(inputs.toTypedArray(), key.toByteArray(), cardId, message) { result ->
+                when (result) {
+                    is CompletionResult.Success -> continuation.resumeWith(Result.success(result.data))
+                    is CompletionResult.Failure -> continuation.resumeWith(Result.failure(Exception(result.error.customMessage)))
+                }
+            }
+        }
+    }
 
     private suspend fun createKeyCoroutine(cardId: String? = null, isReusable: Boolean? = false, curve: Curve): CreateWalletResponse {
         return suspendCoroutine { continuation ->
@@ -99,8 +127,6 @@ class CardService {
 }
 
 
-
-
 fun CardStatus.toKeyStatus() = when (code) {
     2 -> KeyStatus.active
     3 -> KeyStatus.inActive
@@ -120,13 +146,13 @@ fun CreateWalletResponse.toKeyInfo() = KeyInfo(index = walletIndex, publicKeyMul
 // TODO: we need to inspect the curve and adjust the multibase accordingingly
 fun CardWallet.toKeyInfo() = KeyInfo(index = index, publicKeyMultibase = "z${publicKey}", status = status.toKeyStatus())
 
-fun PurgeWalletResponse.toKeyInfo(publicKeyMultibase : String? = null) = KeyInfo(publicKeyMultibase, index = walletIndex.toInt(), status = status.toKeyStatus())
+fun PurgeWalletResponse.toKeyInfo(publicKeyMultibase: String? = null) =
+    KeyInfo(publicKeyMultibase, index = walletIndex.toInt(), status = status.toKeyStatus())
 
-fun WalletIndex.toInt() = when(this) {
+fun WalletIndex.toInt() = when (this) {
     is WalletIndex.Index -> this.index
     else -> -1
 }
-
 
 
 fun Card.toCardInfoResult() = CardInfoResult(cardId = cardId, batchId = cardData?.batchId)

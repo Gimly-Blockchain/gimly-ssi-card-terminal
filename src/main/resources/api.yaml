@@ -43,16 +43,11 @@ components:
         type: string
 
   requestBodies:
-    KeyRequestBody:
+    CreateKeyRequestBody:
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/CreateKeyRequest"
-          example:
-            tags: [ "Tag Example", "My Data" ]
-            blockchain:
-              metadata: [ Example, World ]
-              data: Hello World
     KeyResponseCallback:
       content:
         application/json:
@@ -80,6 +75,70 @@ components:
           schema:
             $ref: "#/components/schemas/KeyResults"
   schemas:
+    SignRequest:
+      description: Sign input data using the specified key
+      type: object
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: "#/components/schemas/SignInput"
+          minItems: 1
+    SignInput:
+      description: Input data to be signed
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: string
+          pattern: "[a-f][A-F][0-9]"
+        encoding:
+          $ref: "#/components/schemas/InputEncoding"
+    SignOutput:
+      description: Signed output data
+      readOnly: true
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: string
+          pattern: "[a-f][A-F][0-9]"
+        encoding:
+          $ref: "#/components/schemas/OutputEncoding"
+    SignOutputFromInput:
+      description: Output data that was signed
+      readOnly: true
+      properties:
+        input:
+          $ref: "#/components/schemas/SignInput"
+        output:
+          $ref: "#/components/schemas/SignOutput"
+    InputEncoding:
+      description: Input encoding. Only hex supported for now
+      type: string
+      default: hex
+      enum:
+        - hex
+    SignResponse:
+      description: Signed data
+      type: object
+      properties:
+        publicKeyMultibase:
+          description: The public key in Multibase Format
+          type: string
+        signatures:
+          type: array
+          items:
+            $ref: "#/components/schemas/SignOutputFromInput"
+    OutputEncoding:
+      description: Output encoding. Only hex supported for now
+      type: string
+      enum:
+        - hex
     CreateKeyRequest:
       description: This is the create Key Request, which create a keypair on the NFC card
       type: object
@@ -271,12 +330,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CardIdQueryParam'
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateKeyRequest"
-        description: Create a new key
-        required: true
+        $ref: "#/components/requestBodies/CreateKeyRequestBody"
+
   "/keys/{keyId}":
     parameters:
       - $ref: "#/components/parameters/CardIdQueryParam"
@@ -289,7 +344,7 @@ paths:
       tags:
         - Key
       description: Get a key by card index, publickey or DID key
-      operationId: getKeyById
+      operationId: getKey
       responses:
         "200":
           description: The Key info
@@ -311,7 +366,7 @@ paths:
       tags:
         - Key
       description: Deactivate a key by card index, publickey or DID key
-      operationId: deactiveKeyById
+      operationId: deactiveKey
       responses:
         "200":
           description: The Key info
@@ -344,10 +399,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/KeyInfo"
+                $ref: "#/components/schemas/SignResponse"
         "400":
           description: Invalid
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignRequest"
+        description: Signs one or more inputs, typically hashes in hex format
+        required: true

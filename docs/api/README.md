@@ -9,8 +9,8 @@ Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *CardApi* | [**scanCard**](Apis/CardApi.md#scancard) | **GET** / | Scan the card
 *KeyApi* | [**createKey**](Apis/KeyApi.md#createkey) | **POST** /keys | Create a new key
-*KeyApi* | [**deactiveKeyById**](Apis/KeyApi.md#deactivekeybyid) | **DELETE** /keys/{keyId} | Deactivate a key by card Index, public key or DID key
-*KeyApi* | [**getKeyById**](Apis/KeyApi.md#getkeybyid) | **GET** /keys/{keyId} | Get a key by card Index, public key or DID key
+*KeyApi* | [**deactiveKey**](Apis/KeyApi.md#deactivekey) | **DELETE** /keys/{keyId} | Deactivate a key by card Index, public key or DID key
+*KeyApi* | [**getKey**](Apis/KeyApi.md#getkey) | **GET** /keys/{keyId} | Get a key by card Index, public key or DID key
 *KeyApi* | [**getKeys**](Apis/KeyApi.md#getkeys) | **GET** /keys | Get all keys
 *KeyApi* | [**signUsingKey**](Apis/KeyApi.md#signusingkey) | **PUT** /keys/{keyId}/signatures | Sign one or more inputs
 
@@ -24,11 +24,18 @@ Class | Method | HTTP request | Description
  - [Curve](./io.gimly.generated.card.model/Curve.md)
  - [ErrorResponse](./io.gimly.generated.card.model/ErrorResponse.md)
  - [FirmwareVersion](./io.gimly.generated.card.model/FirmwareVersion.md)
+ - [InputEncoding](./io.gimly.generated.card.model/InputEncoding.md)
  - [KeyInfo](./io.gimly.generated.card.model/KeyInfo.md)
  - [KeyResults](./io.gimly.generated.card.model/KeyResults.md)
  - [KeyStatus](./io.gimly.generated.card.model/KeyStatus.md)
  - [LinkedTerminal](./io.gimly.generated.card.model/LinkedTerminal.md)
+ - [OutputEncoding](./io.gimly.generated.card.model/OutputEncoding.md)
+ - [SignInput](./io.gimly.generated.card.model/SignInput.md)
  - [SignMode](./io.gimly.generated.card.model/SignMode.md)
+ - [SignOutput](./io.gimly.generated.card.model/SignOutput.md)
+ - [SignOutputFromInput](./io.gimly.generated.card.model/SignOutputFromInput.md)
+ - [SignRequest](./io.gimly.generated.card.model/SignRequest.md)
+ - [SignResponse](./io.gimly.generated.card.model/SignResponse.md)
 
 
 <a name="documentation-for-authorization"></a>

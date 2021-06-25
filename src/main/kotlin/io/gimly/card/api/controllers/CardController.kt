@@ -1,10 +1,7 @@
 package io.gimly.card.api.controllers
 
 import io.gimly.card.api.services.CardService
-import io.gimly.generated.card.model.CardInfoResult
-import io.gimly.generated.card.model.CreateKeyRequest
-import io.gimly.generated.card.model.KeyInfo
-import io.gimly.generated.card.model.KeyResults
+import io.gimly.generated.card.model.*
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -34,4 +31,10 @@ class CardController(val cardService: CardService) {
     suspend fun deleteKeyById(@RequestParam cardId: String?, @PathVariable keyId: String): KeyInfo {
         return cardService.deleteKeyById(cardId, keyId) ?: throw Exception("Could not delete key with id $keyId for card $cardId")
     }
+
+    @PutMapping("/keys/{keyId}/signatures")
+    suspend fun signUsingKey(@RequestParam cardId: String?, @PathVariable keyId: String, @RequestBody signRequest: SignRequest): SignResponse {
+        return cardService.sign(cardId, keyId, signRequest) ?: throw Exception("Could not sign using key $keyId for card $cardId")
+    }
+
 }

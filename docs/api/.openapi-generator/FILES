@@ -7,8 +7,15 @@ io/gimly/generated/card/model/CreateKeyRequest.md
 io/gimly/generated/card/model/Curve.md
 io/gimly/generated/card/model/ErrorResponse.md
 io/gimly/generated/card/model/FirmwareVersion.md
+io/gimly/generated/card/model/InputEncoding.md
 io/gimly/generated/card/model/KeyInfo.md
 io/gimly/generated/card/model/KeyResults.md
 io/gimly/generated/card/model/KeyStatus.md
 io/gimly/generated/card/model/LinkedTerminal.md
+io/gimly/generated/card/model/OutputEncoding.md
+io/gimly/generated/card/model/SignInput.md
 io/gimly/generated/card/model/SignMode.md
+io/gimly/generated/card/model/SignOutput.md
+io/gimly/generated/card/model/SignOutputFromInput.md
+io/gimly/generated/card/model/SignRequest.md
+io/gimly/generated/card/model/SignResponse.md
