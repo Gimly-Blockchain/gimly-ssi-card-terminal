@@ -15,6 +15,10 @@ tags:
     description: Card and Wallet
   - name: Key
     description: Keys and Signatures
+  - name: Proof
+    description: Proofs of inputs, credentials and presentations
+  - name: Storage
+    description: Storage (Credentials only for now)
 servers:
   - url: http://localhost:8080/gimly-ssi-card-terminal/0.1
 components:
@@ -41,7 +45,13 @@ components:
       required: true
       schema:
         type: string
-
+    CredentialIdPathParam:
+      in: path
+      name: credentialId
+      description: The Credential Id
+      required: true
+      schema:
+        type: string
   requestBodies:
     CreateKeyRequestBody:
       content:
@@ -75,6 +85,130 @@ components:
           schema:
             $ref: "#/components/schemas/KeyResults"
   schemas:
+    Proof:
+      description: A Credential or Presentation proof
+      type: object
+      additionalProperties: true
+      properties:
+        type:
+          type: string
+        created:
+          type: string
+        proofPurpose:
+          type: string
+        verificationMethod:
+          type: string
+        jws:
+          type: string
+    CredentialSubject:
+      type: object
+      description: The Credential Subject
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+    CredentialStatus:
+      description: Credential Status
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+    Credential:
+      description: A Credential
+      type: object
+      additionalProperties: true
+      properties:
+        '@context':
+          type: array
+          items:
+            type: string
+        id:
+          type: string
+        type:
+          type: array
+          items:
+            type: string
+        credentialSubject:
+          $ref: "#/components/schemas/CredentialSubject"
+        issuer:
+          type: string
+        issuanceDate:
+          type: string
+        expirationDate:
+          type: string
+        credentialStatus:
+          $ref: "#/components/schemas/CredentialStatus"
+
+    VerifiableCredential:
+      description: A Verifiable Credential
+      allOf:
+        - $ref: "#/components/schemas/Credential"
+      properties:
+        issuanceDate:
+          type: string
+        proof:
+          $ref: "#/components/schemas/Proof"
+    Presentation:
+      description: A Presentation
+      type: object
+      additionalProperties: true
+      properties:
+        '@context':
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+        verifiableCredential:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/VerifiableCredential"
+              - type: string
+    VerifiablePresentation:
+      description: A Verifiable Presentation
+      allOf:
+        - $ref: "#/components/schemas/Presentation"
+      additionalProperties: true
+      properties:
+        proof:
+          $ref: "#/components/schemas/Proof"
+    SignCredentialRequest:
+      description: Sign a credential adding a proof to it
+      type: object
+      required:
+        - credential
+      properties:
+        credential:
+          $ref: "#/components/schemas/Credential"
+        store:
+          type: boolean
+          default: true
+    SignCredentialResponse:
+      description: A Verifiable Credential
+      type: object
+      properties:
+        verifiableCredential:
+          $ref: "#/components/schemas/VerifiableCredential"
+        storageId:
+          description: If the credential was stored it returns the id you can use (typically the credential id)
+          type: string
+    SignPresentationRequest:
+      description: Sign a presentation adding a proof to it
+      type: object
+      required:
+        - presentation
+      properties:
+        presentation:
+          $ref: "#/components/schemas/Presentation"
+    SignPresentationResponse:
+      description: A Verifiable Presentation
+      type: object
+      properties:
+        verifiablePresentation:
+          $ref: "#/components/schemas/VerifiablePresentation"
     SignRequest:
       description: Sign input data using the specified key
       type: object
@@ -150,6 +284,15 @@ components:
           type: boolean
           default: false
 
+
+    StoredCredentialsResponse:
+      description: All stored credentials
+      type: object
+      properties:
+        credentials:
+          type: array
+          items:
+            $ref: "#/components/schemas/VerifiableCredential"
 
     KeyResults:
       description: These are the Key Result
@@ -380,7 +523,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  "/keys/{keyId}/signatures":
+  "/keys/{keyId}/proofs/signatures":
     parameters:
       - $ref: "#/components/parameters/KeyIdPathParam"
       - $ref: "#/components/parameters/CardIdQueryParam"
@@ -390,7 +533,7 @@ paths:
         - oauth2schema:
             - global
       tags:
-        - Key
+        - Proof
       description: Sign one or more inputs using the provided key
       operationId: SignUsingKey
       responses:
@@ -413,3 +556,142 @@ paths:
               $ref: "#/components/schemas/SignRequest"
         description: Signs one or more inputs, typically hashes in hex format
         required: true
+  "/keys/{keyId}/proofs/credentials":
+    parameters:
+      - $ref: "#/components/parameters/KeyIdPathParam"
+      - $ref: "#/components/parameters/CardIdQueryParam"
+    put:
+      summary: Signs a credential (adds a proof)
+      security:
+        - oauth2schema:
+            - global
+      tags:
+        - Proof
+      description: Sign a credential, adding a proof and making it a verifiable credential
+      operationId: SignCredential
+      responses:
+        "200":
+          description: The signed info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignCredentialResponse"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignCredentialRequest"
+        description: Signs one or more inputs, typically hashes in hex format
+        required: true
+  "/keys/{keyId}/proofs/presentations":
+    parameters:
+      - $ref: "#/components/parameters/KeyIdPathParam"
+      - $ref: "#/components/parameters/CardIdQueryParam"
+    put:
+      summary: Signs a presentation (adds a proof)
+      security:
+        - oauth2schema:
+            - global
+      tags:
+        - Proof
+      description: Sign a presentation, adding a proof and making it a verifiable presentation
+      operationId: SignPresentation
+      responses:
+        "200":
+          description: The Verifiable Presentation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignPresentationResponse"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignPresentationRequest"
+        description: Signs a presentation
+        required: true
+  "/storage/credentials":
+    parameters:
+      - $ref: "#/components/parameters/CardIdQueryParam"
+    get:
+      summary: Gets all stored Verifiable Credentials
+      security:
+        - oauth2schema:
+            - global
+      tags:
+        - Storage
+      description: Gets all stored Verifiable Credentials from the NFC card
+      operationId: getStoredCredentials
+      responses:
+        "200":
+          description: The credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoredCredentialsResponse"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/storage/credentials/{credentialId}":
+    parameters:
+      - $ref: "#/components/parameters/CardIdQueryParam"
+      - $ref: "#/components/parameters/CredentialIdPathParam"
+    get:
+      summary: Gets a stored Verifiable credential
+      security:
+        - oauth2schema:
+            - global
+      tags:
+        - Storage
+      description: Gets the Verifiable Credentials by id from the NFC card
+      operationId: getStoredCredential
+      responses:
+        "200":
+          description: The credential
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifiableCredential"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Deletes a stored Verifiable credential
+      security:
+        - oauth2schema:
+            - global
+      tags:
+        - Storage
+      description: Deletes the Verifiable Credentials from the NFC card
+      operationId: deleteStoredCredential
+      responses:
+        "200":
+          description: The credential
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifiableCredential"
+        "400":
+          description: Invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"

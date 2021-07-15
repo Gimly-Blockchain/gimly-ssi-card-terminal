@@ -65,18 +65,78 @@ This method allows you to sign one or more inputs using the private key stored o
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **keyId** | **String**| The Key index, public key or DID/Verification method key id | [default to null]
-**SignRequest** | [**SignRequest**](../io.gimly.generated.card.model/SignRequest.md)| Signs one or more inputs, typically hashes in hex format |
+**SignRequest** | [**SignRequest**](./docs/api/io.gimly.generated.card.model/SignRequest.md)| Signs one or more inputs, typically hashes in hex format |
 **cardId** | **String**| The Id of a card | [optional] [default to null]
 
 ### Return type
 
-[**SignResponse**](../io.gimly.generated.card.model/SignResponse.md)
+[**SignResponse**](./docs/api/io.gimly.generated.card.model/SignResponse.md)
+
+
+# Add a proof to a credential
+This method adds a proof to the supplied credential, using the private key on the NFC card and thus making it a Verifiable Credential. It allows for optional storage of the VC on the NFC card.
+
+### **signCredential**
+> SignCredentialResponse signCredential(keyId, SignCredentialRequest, cardId)
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**keyId** | **String**| The Key index, public key or DID/Verification method key id | [default to null]
+**SignCredentialRequest** | [**SignCredentialRequest**](./docs/api/io.gimly.generated.card.model/SignCredentialRequest.md)| Signs one or more inputs, typically hashes in hex format |
+**cardId** | **String**| The Id of a card | [optional] [default to null]
+
+### Return type
+
+[**SignCredentialResponse**](./docs/api/io.gimly.generated.card.model/SignCredentialResponse.md)
+
+
+# Add a proof to a presentation
+Sign ths supplied presentation using the key on the NFC card, adding a proof and making it a verifiable presentation. Please note that verifiable presentations cannot be stored, as the nature of Verifiable Presentations is to use them on singular invocations only
+
+<a name="signPresentation"></a>
+### **signPresentation**
+> SignPresentationResponse signPresentation(keyId, SignPresentationRequest, cardId)
+
+Signs a presentation (adds a proof)
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**keyId** | **String**| The Key index, public key or DID/Verification method key id | [default to null]
+**SignPresentationRequest** | [**SignPresentationRequest**](./docs/api/io.gimly.generated.card.model/SignPresentationRequest.md)| Signs a presentation |
+**cardId** | **String**| The Id of a card | [optional] [default to null]
+
+### Return type
+
+[**SignPresentationResponse**](./docs/api/io.gimly.generated.card.model/SignPresentationResponse.md)
+
+
+# Get all Verifiable Credentials stored on the NFC card
+Verified Credentials that are self-issued as well as externally issued with a subject that related to the NFC card, can be stored on the NFC card. This method returns all stored Verifiable Credentials.
+
+<a name="getStoredCredentials"></a>
+### **getStoredCredentials**
+> StoredCredentialsResponse getStoredCredentials(cardId)
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**cardId** | **String**| The Id of a card | [optional] [default to null]
+
+### Return type
+
+[**StoredCredentialsResponse**](../io.gimly.generated.card.model/StoredCredentialsResponse.md)
 
 # TODO
+- Mock testing once we have the latest cards
 - Auth support on the endpoints itself
 - Integration with GraalVM for native executables
 - Windows service integration
-- Docker support
+- Docker support with USB?
 - Do we want direct DID creation support, instead of external application created DIDs and only KID resolution?
 - SDK generation for popular languages
 

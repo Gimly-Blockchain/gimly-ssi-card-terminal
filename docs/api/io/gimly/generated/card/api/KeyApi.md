@@ -8,7 +8,6 @@ Method | HTTP request | Description
 [**deactiveKey**](KeyApi.md#deactiveKey) | **DELETE** /keys/{keyId} | Deactivate a key by card Index, public key or DID key
 [**getKey**](KeyApi.md#getKey) | **GET** /keys/{keyId} | Get a key by card Index, public key or DID key
 [**getKeys**](KeyApi.md#getKeys) | **GET** /keys | Get all keys
-[**signUsingKey**](KeyApi.md#signUsingKey) | **PUT** /keys/{keyId}/signatures | Sign one or more inputs
 
 
 <a name="createKey"></a>
@@ -120,34 +119,5 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: Not defined
-- **Accept**: application/json
-
-<a name="signUsingKey"></a>
-# **signUsingKey**
-> SignResponse signUsingKey(keyId, SignRequest, cardId)
-
-Sign one or more inputs
-
-    Sign one or more inputs using the provided key
-
-### Parameters
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **keyId** | **String**| The Key index, public key or DID/Verification method key id | [default to null]
- **SignRequest** | [**SignRequest**](../io.gimly.generated.card.model/SignRequest.md)| Signs one or more inputs, typically hashes in hex format |
- **cardId** | **String**| The Id of a card | [optional] [default to null]
-
-### Return type
-
-[**SignResponse**](../io.gimly.generated.card.model/SignResponse.md)
-
-### Authorization
-
-[oauth2schema](../README.md#oauth2schema)
-
-### HTTP request headers
-
-- **Content-Type**: application/json
 - **Accept**: application/json
 
