@@ -12,7 +12,7 @@ The below examples are the most common use cases.
 
 The full [API documentation](./docs/api/README.md) including all endpoints can be found [here](./docs/api/README.md)
 
-To view the API definition online open [editor.swagger.io](https://editor.swagger.io/?url=https://raw.githubusercontent.com/Gimly-Blockchain/gimly-ssi-card-terminal/main/src/main/resources/api.yaml)
+To view the API definition online open [editor.swagger.io](https://gimly-blockchain.github.io/gimly-ssi-card-terminal)
 
 
 
