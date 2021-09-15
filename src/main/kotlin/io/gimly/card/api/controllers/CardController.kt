@@ -37,4 +37,18 @@ class CardController(val cardService: CardService) {
         return cardService.sign(cardId, keyId, signRequest) ?: throw Exception("Could not sign using key $keyId for card $cardId")
     }
 
+    @GetMapping("/storage/credentials")
+    suspend fun listStoredVCs(@RequestParam cardId: String?): StoredCredentialsResponse {
+        return cardService.listStoredVCs(cardId)
+    }
+
+    @GetMapping("/storage/credentials/{credentialId}")
+    suspend fun getStoredVC(@RequestParam cardId: String?, @PathVariable credentialId: String): VerifiableCredential? {
+        return cardService.getStoredVC(cardId, credentialId)
+    }
+
+    @DeleteMapping("/storage/credentials/{credentialId}")
+    suspend fun deleteStoredVCs(@RequestParam cardId: String?, @PathVariable credentialId: String): VerifiableCredential? {
+        return cardService.deleteStoredVC(cardId, credentialId)
+    }
 }

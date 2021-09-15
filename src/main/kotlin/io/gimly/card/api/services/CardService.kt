@@ -1,5 +1,7 @@
 package io.gimly.card.api.services
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.tangem.Message
 import com.tangem.TangemSdk
 import com.tangem.commands.common.card.Card
@@ -10,6 +12,7 @@ import com.tangem.commands.wallet.*
 import com.tangem.common.CompletionResult
 import com.tangem.common.extensions.toHexString
 import com.tangem.jvm.init
+import com.tangem.tasks.file.ReadFilesResponse
 import io.gimly.generated.card.model.*
 import org.springframework.stereotype.Service
 import kotlin.coroutines.suspendCoroutine
@@ -17,7 +20,7 @@ import kotlin.streams.toList
 
 
 @Service
-class CardService {
+class CardService(val objectMapper: ObjectMapper) {
 
     private val sdk = (TangemSdk.init(
         verbose = true,
@@ -64,6 +67,51 @@ class CardService {
         return SignResponse(signatures = signatures)
     }
 
+    suspend fun listStoredVCs(cardId: String?): StoredCredentialsResponse {
+        val credentials = listFilesCoroutine(cardId).files.mapNotNull {
+            try {
+                objectMapper.readValue<VerifiableCredential>(it.fileData)
+            } catch (e: Exception) {
+                null
+            }
+        }.toList()
+        return StoredCredentialsResponse(credentials)
+    }
+
+    suspend fun getStoredVC(cardId: String?, credentialId: String): VerifiableCredential? {
+        return listStoredVCs(cardId).credentials?.first { credentialId == it.id }
+    }
+
+    suspend fun deleteStoredVC(cardId: String?, credentialId: String): VerifiableCredential? {
+        return listFilesCoroutine(cardId).files.mapIndexed { index, file ->
+            try {
+                val credential = objectMapper.readValue<VerifiableCredential>(file.fileData)
+                if (credentialId == credential.id) {
+                    // TODO: Make coroutine
+                    sdk.deleteFiles(arrayListOf(index), cardId, null, callback = {})
+                    return credential
+                }
+                return null
+            } catch (e: Exception) {
+                return null
+            }
+
+        }.first()
+
+    }
+
+
+    private suspend fun listFilesCoroutine(cardId: String? = null): ReadFilesResponse {
+        return suspendCoroutine { continuation ->
+            val message = Message("Gimly ID Card needed", "Please tap your Gimly ID Card to the reader to retrieve Credentials")
+            sdk.readFiles(true, null, cardId, message) { result ->
+                when (result) {
+                    is CompletionResult.Success -> continuation.resumeWith(Result.success(result.data))
+                    is CompletionResult.Failure -> continuation.resumeWith(Result.failure(Exception(result.error.customMessage)))
+                }
+            }
+        }
+    }
 
     private suspend fun signCoroutine(cardId: String? = null, keyId: String, inputs: List<ByteArray>): List<ByteArray> {
         return suspendCoroutine { continuation ->
