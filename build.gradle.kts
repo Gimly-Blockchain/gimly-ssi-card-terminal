@@ -5,9 +5,9 @@ val javaVersion = JavaVersion.VERSION_13
 val genSourceDir = file("$buildDir/kotlin-models/src/main/kotlin")
 
 plugins {
-	id("org.springframework.boot").version("2.4.6")
+	id("org.springframework.boot").version("2.5.5")
 	id("io.spring.dependency-management").version("1.0.11.RELEASE")
-    id("org.openapi.generator").version("5.1.1")
+    id("org.openapi.generator").version("5.2.1")
 	kotlin("jvm").version("1.5.10")
 	kotlin("plugin.spring").version("1.5.10")
 }
@@ -46,8 +46,8 @@ repositories {
 
 dependencies {
     implementation("org.openapitools:openapi-generator-gradle-plugin:5.1.1")
-    implementation("com.github.tangem.tangem-sdk-android:tangem-sdk-core:3.2.0")
-    implementation("com.github.tangem.tangem-sdk-android:tangem-sdk-jvm:3.2.0")
+    implementation("com.github.tangem.tangem-sdk-android:tangem-sdk-core:3.3.0")
+    implementation("com.github.tangem.tangem-sdk-android:tangem-sdk-jvm:3.3.0")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
