@@ -46,8 +46,8 @@ repositories {
 
 dependencies {
     implementation("org.openapitools:openapi-generator-gradle-plugin:5.1.1")
-    implementation("com.github.tangem.tangem-sdk-android:tangem-sdk-core:3.3.0")
-    implementation("com.github.tangem.tangem-sdk-android:tangem-sdk-jvm:3.3.0")
+    implementation("com.github.tangem.tangem-sdk-android:core:3.3.0")
+    implementation("com.github.tangem.tangem-sdk-android:jvm:3.3.0")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
