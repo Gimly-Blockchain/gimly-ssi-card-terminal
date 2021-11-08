@@ -40,18 +40,26 @@ java {
 }
 
 repositories {
-	mavenCentral()
     maven { url = uri("https://jitpack.io") }
+    mavenCentral()
 }
 
 dependencies {
-    implementation("org.openapitools:openapi-generator-gradle-plugin:5.1.1")
-    implementation("com.github.tangem.tangem-sdk-android:core:3.3.0")
-    implementation("com.github.tangem.tangem-sdk-android:jvm:3.3.0")
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    implementation("com.github.tangem.tangem-sdk-android:core:develop-92")
+    implementation("com.github.tangem.tangem-sdk-android:jvm:develop-92")
+    implementation("org.openapitools:openapi-generator-gradle-plugin:5.2.0")
+	implementation("org.springframework.boot:spring-boot-starter-web:2.5.6") {
+        exclude(module = "spring-boot-starter-logging")
+        exclude(module = "logback-classic")
+    }
+    implementation("org.reactivestreams:reactive-streams:1.0.3")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.5.2-native-mt")
+
     implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
 
     implementation("io.swagger", "swagger-annotations", "1.6.0")
@@ -62,11 +70,11 @@ dependencies {
     implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.1"))
 
     // define any required OkHttp artifacts without version
-    implementation("com.squareup.moshi:moshi-kotlin:1.11.0")
-    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.2")
 
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.5.6")
 }
 
 tasks.withType<KotlinCompile> {

@@ -164,9 +164,7 @@ components:
         verifiableCredential:
           type: array
           items:
-            oneOf:
-              - $ref: "#/components/schemas/VerifiableCredential"
-              - type: string
+            $ref: "#/components/schemas/VerifiableCredential"
     VerifiablePresentation:
       description: A Verifiable Presentation
       allOf:
