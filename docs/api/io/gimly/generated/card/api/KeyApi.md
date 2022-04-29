@@ -5,7 +5,7 @@ All URIs are relative to _http://localhost:8080/gimly-ssi-card-terminal/0.1_
 | Method                                   | HTTP request             | Description                                           |
 | ---------------------------------------- | ------------------------ | ----------------------------------------------------- |
 | [**createKey**](KeyApi.md#createKey)     | **POST** /keys           | Create a new key                                      |
-| [**deactiveKey**](KeyApi.md#deactiveKey) | **DELETE** /keys/{keyId} | Deactivate a key by card Index, public key or DID key |
+| [**deactivateKey**](KeyApi.md#deactivateKey) | **DELETE** /keys/{keyId} | Deactivate a key by card Index, public key or DID key |
 | [**getKey**](KeyApi.md#getKey)           | **GET** /keys/{keyId}    | Get a key by card Index, public key or DID key        |
 | [**getKeys**](KeyApi.md#getKeys)         | **GET** /keys            | Get all keys                                          |
 
@@ -39,11 +39,11 @@ Create a new key
 - **Content-Type**: application/json
 - **Accept**: application/json
 
-<a name="deactiveKey"></a>
+<a name="deactivateKey"></a>
 
-# **deactiveKey**
+# **deactivateKey**
 
-> KeyInfo deactiveKey(keyId, cardId)
+> KeyInfo deactivateKey(keyId, cardId)
 
 Deactivate a key by card Index, public key or DID key
 

@@ -507,7 +507,7 @@ paths:
       tags:
         - Key
       description: Deactivate a key by card index, publickey or DID key
-      operationId: deactiveKey
+      operationId: deactivateKey
       responses:
         "200":
           description: The Key info
